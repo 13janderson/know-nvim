@@ -64,10 +64,13 @@ vim.keymap.set("v", "<leader>k", function()
 
     for _, value in ipairs(selection) do
         tagFile:write(value)
+        tagFile:write("\n")
     end
 
-    tagFile:write("\n")
     tagFile:close()
+
+    -- P(selection)
+    -- print(selection[1])
 end)
 
 return M
