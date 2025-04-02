@@ -1,5 +1,8 @@
 local M = {}
 
+local theKnow = os.getenv("HOME") .. "/.kbase"
+vim.fn.mkdir(theKnow, "p")
+
 local P = function(tbl)
     local inspect = vim.inspect(tbl)
     print(inspect)
@@ -45,13 +48,26 @@ vim.keymap.set("v", "<leader>k", function()
         -- visual line mode
         selection = vim.api.nvim_buf_get_lines(0, selectionStartLine -1, selectionEndLine, false) 
     end
-    local selectedLines = table.concat(selection, "\n")
 
-    print(selectedLines)
-    local fileType = vim.filetype
-    local tag = vim.fn.input("%s tag:", fileType)
+    local filetype = vim.bo.filetype 
+    local inputTag = vim.fn.input(string.format("%s tag:", filetype))
     -- Go back to normal mode, replacing termcodes like <C-c> with their internal representation rather than 
     -- feeding these exact keys
     vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<C-c>', true, false, true), 'n', true)
+    print(string.format("%s... tagged with %s",selection[1], inputTag))
+
+    local fileDir= string.format("%s/%s", theKnow, filetype)
+    local fileName = string.format("%s.%s", inputTag, filetype)
+    vim.fn.mkdir(fileDir, "p")
+
+    local tagFile = io.open(string.format("%s/%s", fileDir, fileName) , "a")
+
+    for _, value in ipairs(selection) do
+        tagFile:write(value)
+    end
+
+    tagFile:write("\n")
+    tagFile:close()
 end)
+
 return M
