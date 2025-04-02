@@ -25,12 +25,15 @@ end
 vim.keymap.set("v", "<leader>k", function()
     local cursor = vim.fn.getpos(".")
     local visualEnd= vim.fn.getpos("v")
+
+    local mode = vim.fn.mode()
     -- lnum, col. If we are in visual mode then we don't care about what column we're in
     -- can use buf get lines or get text
     --
     -- It seems like the two positions are equal when we are just visually selecting a line
 
     local cursorLine, cursorCol, visualLine, visualCol = cursor[2], cursor[3], visualEnd[2], visualEnd[3]
+    print(cursorLine, cursorCol, visualLine, visualCol)
     local selectionStartLine, selectionEndLine, selectionStartCol, selectionEndCol =
         cursorLine, visualLine, cursorCol, visualCol
     if  cursorLine == visualLine and cursorCol == visualCol then
@@ -45,24 +48,22 @@ vim.keymap.set("v", "<leader>k", function()
         end
     end
 
+    local selection
+    -- We want different bevhaiour depending on whether we are in visual line mode or visual mode 
+    -- Visual line mode, we simply want to select the lines
+    if mode == "v" then
+        -- visual mode
+        selection = vim.api.nvim_buf_get_text(0, selectionStartLine -1, selectionStartCol, selectionEndLine -1, selectionEndCol, false) 
+    elseif mode == "V" then
+        -- visual line mode
+        selection = vim.api.nvim_buf_get_lines(0, selectionStartLine -1, selectionEndLine, false) 
+    end
+    P(selection)
+
+
     -- local selected = vim.api.nvim_buf_get_text(0, selectionStartLine-1, selectionStartCol-1, selectionEndLine-1, selectionEndCol-1, {})
     -- print(selectionStartLine, selectionStartCol, selectionEndLine, selectionEndCol)
     -- P(selected)
 
-    -- P(vim.fn.getpos("'<"))
-    P(vim.fn.getpos("'>"))
-    local mincol = 0
-    local maxcol = vim.api.nvim_get_vvar('maxcol')
-    print(maxcol)
-    -- print(vim.fn.getpos("'<")
-    -- lines are 1 indexed???
-    -- P(cursor)
-    -- local inspectCursor = P(cursor)
-    -- local inspectVisualEnd = P(visualEnd)
-    -- print(inspectCursor == inspectVisualEnd)
-    --
 end)
-
-
-
 return M
