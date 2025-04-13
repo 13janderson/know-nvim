@@ -1,60 +1,63 @@
 local pickers = require "telescope.pickers"
 local finders = require "telescope.finders"
-local make_entry = require "telescope.make_entry"
 local previewers = require "telescope.previewers"
-
-local conf = require "telescope.config".values
-
-local P = function(tbl)
-    local inspect = vim.inspect(tbl)
-    print(inspect)
-    return inspect
-end
+local conf = require("telescope.config").values
+local Job = require("plenary.job")
 
 local M = {}
 
+-- Helper to print tables for debugging
+local P = function(tbl)
+  local inspect = vim.inspect(tbl)
+  print(inspect)
+  return inspect
+end
+
+-- Previewer that fetches sheet content with curl
+local chtsh_previewer = previewers.new_termopen_previewer({
+  get_command = function(entry)
+    return { "curl", "-s", "cht.sh/" .. entry.value }
+  end,
+})
+
+-- Main picker function
 local chtsh = function(opts)
   opts = opts or {}
 
-  local finder = finders.new_async_job {
-    command_generator = function(prompt)
-      if not prompt or prompt == "" then
-        return nil
-      end
-
-      local pieces = vim.split(prompt, "  ")
-      local args = { "curl", string.format("cheat.sh/%s", "go")}
-      P(args)
-      -- if pieces[1] then
-      --   table.insert(args, pieces[1])
-      -- end
-
-      -- if pieces[2] then
-      --   table.insert(args, "-g")
-      --   table.insert(args, pieces[2])
-      -- end
-
-      ---@diagnostic disable-next-line: deprecated
-      return vim.tbl_flatten {
-        args,
-      }
+  -- Download the list of cheat topics (e.g. python/sort)
+  Job:new({
+    command = "curl",
+    args = { "-s", "cht.sh/:list" },
+    on_exit = function(j)
+      local results = j:result()
+      vim.schedule(function()
+        pickers.new(opts, {
+          prompt_title = "cht.sh",
+          finder = finders.new_table {
+            results = results,
+            entry_maker = function(line)
+              return {
+                value = line,
+                display = line,
+                ordinal = line,
+              }
+            end,
+          },
+          previewer = chtsh_previewer,
+          sorter = conf.generic_sorter(opts),
+        }):find()
+      end)
     end,
-    entry_maker = make_entry.gen_from_vimgrep(opts),
-    cwd = opts.cwd,
-  }
-
-  pickers.new(opts, {
-    debounce = 100,
-    prompt_title = "Cheat",
-    finder = finder,
-    sorter = require("telescope.sorters").empty(),
-  }):find()
+  }):start()
 end
 
+-- Optional keybinding setup
 M.setup = function()
-  vim.keymap.set("n", "<leader>sk", chtsh({}))
+  vim.keymap.set("n", "<leader>sk", chtsh, { desc = "Search cht.sh" })
 end
 
-chtsh({})
+-- Uncomment to auto-run picker on load
+chtsh()
 
 return M
+
