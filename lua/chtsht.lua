@@ -10,7 +10,6 @@ local M = {}
 
 local function open_sheet(path)
   local lang = vim.split(path, "/")[1] -- Extract language name
-
   local cmd = string.format("curl -s 'cht.sh/%s' | sed $'s/\\x1b\\[[0-9;]*m//g'", path)
   vim.cmd("vnew") -- Open in new scratch buffer
   vim.cmd("setlocal buftype=nofile bufhidden=hide noswapfile")
@@ -88,7 +87,5 @@ M.setup = function()
   end, { desc = "Search cht.sh" })
 end
 
--- M.setup()
-pick_list()
 return M
 
