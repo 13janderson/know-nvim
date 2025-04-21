@@ -12,7 +12,7 @@ local function open_sheet(path)
   local lang = vim.split(path, "/")[1] -- Extract language name
 
   local cmd = string.format("curl -s 'cht.sh/%s' | sed $'s/\\x1b\\[[0-9;]*m//g'", path)
-  vim.cmd("new") -- Open in new scratch buffer
+  vim.cmd("vnew") -- Open in new scratch buffer
   vim.cmd("setlocal buftype=nofile bufhidden=hide noswapfile")
 
   vim.fn.jobstart(cmd, {
@@ -83,11 +83,12 @@ end
 
 -- Optional setup function for keybinding
 M.setup = function()
-  vim.keymap.set("n", "<leader>sk", function()
+  vim.keymap.set("n", "<leader>sc",  function()
     pick_list("")
   end, { desc = "Search cht.sh" })
 end
 
+-- M.setup()
 pick_list()
 return M
 
