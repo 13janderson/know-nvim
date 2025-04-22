@@ -27,7 +27,6 @@ function Cache:read(path)
     for line in cacheFile:lines() do
         table.insert(fileLines, line)
     end
-    print("Reading from cache")
     return fileLines
 end
 
@@ -136,7 +135,6 @@ M.setup = function()
     end, { desc = "Search cht.sh" })
 end
 
-pick_list()
 
 return M
 
