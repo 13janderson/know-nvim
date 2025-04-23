@@ -36,12 +36,16 @@ end
 
 
 function Cache:write(path, data)
-    local cacheFile = io.open(self:cachedFilePath(path), "a")
-    for _, value in pairs(data) do
-        cacheFile:write(string.format("%s\n", value))
+    local cachedFilePath = self:cachedFilePath(path)
+    local cacheFile = io.open(cachedFilePath, "a")
+    if cacheFile then
+        for _, value in pairs(data) do
+            cacheFile:write(string.format("%s\n", value))
+        end
+        cacheFile:close()
+    else
+        print(string.format("Failed to write cache at %s", cachedFilePath))
     end
-    cacheFile:close()
-
 end
 
 function Cache:cachedFilePath(path)
