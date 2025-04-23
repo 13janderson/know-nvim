@@ -23,11 +23,15 @@ function Cache:read(path)
     -- return the data of in the file or nil if no cache entry
     local cachePath = self:cachedFilePath(path)
     local cacheFile = io.open(cachePath, "r")
-    local fileLines = {}
-    for line in cacheFile:lines() do
-        table.insert(fileLines, line)
+    if cacheFile then
+        local fileLines = {}
+        for line in cacheFile:lines() do
+            table.insert(fileLines, line)
+        end
+        return fileLines
+    else
+        return nil
     end
-    return fileLines
 end
 
 
