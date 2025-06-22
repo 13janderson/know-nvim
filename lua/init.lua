@@ -3,16 +3,6 @@ local M = {}
 local theKnow = os.getenv("HOME") .. "/.kbase"
 vim.fn.mkdir(theKnow, "p")
 
-local P = function(tbl)
-    local inspect = vim.inspect(tbl)
-    print(inspect)
-    return inspect
-end
-
-M.setup = function()
-    print("Setup called")
-end
-
 vim.keymap.set("v", "<leader>k", function()
     local cursor = vim.fn.getpos(".")
     local visualEnd= vim.fn.getpos("v")

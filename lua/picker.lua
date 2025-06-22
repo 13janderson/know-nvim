@@ -1,9 +1,9 @@
 local pickers = require "telescope.pickers"
 local finders = require "telescope.finders"
 local make_entry = require "telescope.make_entry"
-local previewers = require "telescope.previewers"
+-- local previewers = require "telescope.previewers"
 
-local conf = require "telescope.config".values
+-- local conf = require "telescope.config".values
 
 local P = function(tbl)
     local inspect = vim.inspect(tbl)
@@ -57,7 +57,5 @@ end
 M.setup = function()
   vim.keymap.set("n", "<leader>sk", live_multigrep)
 end
-
-live_multigrep({})
 
 return M
